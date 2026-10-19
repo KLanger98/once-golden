@@ -1163,6 +1163,28 @@
     ]
   },
   {
+    "name": "Product listing",
+    "settings": [
+      {
+        "type": "paragraph",
+        "content": "Product cards on collection pages."
+      },
+      {
+        "type": "image_picker",
+        "id": "product_card_hover_image",
+        "label": "Hover background",
+        "info": "Image or GIF that fills the card behind the product on hover. A product's \"background\" metafield (custom.background) overrides it. Works best with transparent or light-background product shots."
+      },
+      {
+        "type": "text",
+        "id": "product_card_limited_badge",
+        "label": "Limited badge label",
+        "info": "Shown on products with the \"limited\" metafield (custom.limited) turned on.",
+        "default": "Limited Run"
+      }
+    ]
+  },
+  {
     "name": "t:names.animations",
     "settings": [
       {

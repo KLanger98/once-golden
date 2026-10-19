@@ -1,0 +1,203 @@
+{%- doc -%}
+  Once Golden product card for collection listings.
+
+  A 4:5 image tile on a sand background with Brand / Product / Price beneath.
+  On hover the tile's background swaps to the "Hover background" theme setting
+  (or the product's custom.background metafield) and the product shot blurs
+  slightly. The shot is multiplied onto the background so light studio
+  backdrops drop out and the hover image shows through.
+
+  Badges: "Sold out" when unavailable, otherwise the "Limited badge label"
+  setting when the product's custom.limited metafield is on.
+
+  @param {object} product - The product to render
+  @param {boolean} [lazy] - Lazy-load the product image (default: true)
+
+  @example
+  {% render 'product-listing-card', product: product, lazy: false %}
+{%- enddoc -%}
+
+{%- liquid
+  assign hover_image = settings.product_card_hover_image
+  assign product_background = product.metafields.custom.background.value
+  if product_background.media_type == 'image'
+    assign hover_image = product_background
+  endif
+
+  assign badge = blank
+  if product.available == false
+    assign badge = 'content.product_badge_sold_out' | t
+  elsif product.metafields.custom.limited.value == true and settings.product_card_limited_badge != blank
+    assign badge = settings.product_card_limited_badge
+  endif
+
+  assign image = product.featured_image
+  assign loading = 'lazy'
+  if lazy == false
+    assign loading = 'eager'
+  endif
+
+  assign price = product.price | money_without_trailing_zeros
+  if product.price_varies
+    assign price = 'content.price_from' | t: price: price
+  endif
+-%}
+
+<a
+  href="{{ product.url }}"
+  class="listing-card{% if hover_image != blank %} listing-card--has-hover{% endif %}"
+>
+  <div class="listing-card__media">
+    {%- if hover_image != blank -%}
+      {{
+        hover_image
+        | image_url: width: 1200
+        | image_tag:
+          class: 'listing-card__hover',
+          loading: 'lazy',
+          alt: '',
+          sizes: '(min-width: 990px) 25vw, (min-width: 750px) 33vw, (min-width: 550px) 50vw, 100vw',
+          widths: '400, 600, 800, 1200'
+      }}
+    {%- endif -%}
+
+    {%- if image != blank -%}
+      {{
+        image
+        | image_url: width: 1200
+        | image_tag:
+          class: 'listing-card__image',
+          loading: loading,
+          alt: image.alt | default: product.title,
+          sizes: '(min-width: 990px) 25vw, (min-width: 750px) 33vw, (min-width: 550px) 50vw, 100vw',
+          widths: '400, 600, 800, 1200'
+      }}
+    {%- else -%}
+      {{ 'product-1' | placeholder_svg_tag: 'listing-card__image listing-card__image--placeholder' }}
+    {%- endif -%}
+
+    {%- if badge != blank -%}
+      <span class="listing-card__badge">{{ badge }}</span>
+    {%- endif -%}
+  </div>
+
+  <div class="listing-card__details">
+    {%- if product.vendor != blank -%}
+      <p class="listing-card__brand">{{ product.vendor }}</p>
+    {%- endif -%}
+
+    <div class="listing-card__meta">
+      <p class="listing-card__title">{{ product.title }}</p>
+      <p class="listing-card__price">
+        {%- if product.compare_at_price > product.price -%}
+          <s class="listing-card__compare-price">
+            <span class="visually-hidden">{{ 'content.price_regular' | t }}</span>
+            {{- product.compare_at_price | money_without_trailing_zeros -}}
+          </s>
+          <span class="visually-hidden">{{ 'content.price_sale' | t }}</span>
+        {%- endif -%}
+        {{ price }}
+      </p>
+    </div>
+  </div>
+</a>
+
+{% stylesheet %}
+  .listing-card {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    color: var(--color-ink);
+    text-decoration: none;
+  }
+
+  .listing-card__media {
+    position: relative;
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+    background-color: var(--color-sand);
+  }
+
+  .listing-card__hover {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity var(--animation-speed, 0.2s) var(--animation-easing, ease);
+  }
+
+  /* The whole shot always shows: scaled to fit inside the tile, never past
+     an 8px inset, keeping its own proportions. */
+  .listing-card__image {
+    position: absolute;
+    inset: 8px;
+    width: calc(100% - 16px);
+    height: calc(100% - 16px);
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    transition: filter var(--animation-speed, 0.2s) var(--animation-easing, ease);
+  }
+
+  .listing-card--has-hover .listing-card__image {
+    mix-blend-mode: multiply;
+  }
+
+  @media (hover: hover) {
+    .listing-card--has-hover:hover .listing-card__hover,
+    .listing-card--has-hover:focus-visible .listing-card__hover {
+      opacity: 1;
+    }
+
+    .listing-card--has-hover:hover .listing-card__image,
+    .listing-card--has-hover:focus-visible .listing-card__image {
+      filter: blur(2px);
+    }
+  }
+
+  .listing-card__badge {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    padding: 10px 12px;
+    background-color: var(--color-brand-primary);
+    color: var(--color-ink);
+    font-family: var(--font-stack-areal);
+    font-size: 0.75rem;
+    font-weight: 700;
+    line-height: 1.1;
+    white-space: nowrap;
+  }
+
+  .listing-card__details {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-inline: 20px;
+  }
+
+  .listing-card__details p {
+    margin: 0;
+  }
+
+  .listing-card__brand {
+    font-family: var(--font-stack-mono);
+    font-size: 0.75rem;
+    font-weight: 400;
+    line-height: 1.1;
+  }
+
+  .listing-card__meta {
+    font-family: var(--font-stack-areal);
+    font-size: 0.875rem;
+    font-weight: 500;
+    line-height: 1.1;
+  }
+
+  .listing-card__compare-price {
+    margin-inline-end: 0.4em;
+    opacity: 0.5;
+  }
+{% endstylesheet %}

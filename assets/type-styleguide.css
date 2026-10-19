@@ -4,7 +4,7 @@
   Scale (desktop): H1 52px / H2 29px / H3 24px / Body 16px (large body 20px)
   Families: ABC Areal (Regular 400, Medium 500, Bold 700, with italics) —
             loaded in snippets/fonts.liquid
-  Palette: pink #FF89A9 (brand primary), ink #030302, stone #D3CEC5,
+  Palette: pink #FF89A9 (brand primary), ink #030302, stone #D3CEC5, sand #E4E2DD,
            mist #F5F5F5, white #FFFFFF
 */
 
@@ -15,12 +15,15 @@
   --color-stone: #d3cec5;
   --color-mist: #f5f5f5;
   --color-white: #ffffff;
+  --color-sand: #e4e2dd; /* product image tiles */
 
   --color-brand-primary: var(--color-pink);
 
   /* Families. ABC Areal is self-hosted (snippets/fonts.liquid); the fallbacks
      cover the moment before it loads. */
   --font-stack-areal: 'ABC Areal', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  /* Alright Mono isn't self-hosted yet — the fallbacks render until it is. */
+  --font-stack-mono: 'Alright Mono', ui-monospace, 'SF Mono', Menlo, monospace;
 
   --font-stack-heading: var(--font-stack-areal);
   --font-stack-subheading: var(--font-stack-areal);

@@ -1,0 +1,104 @@
+{%- doc -%}
+  Full-bleed product grid for collection listings: 1 column on mobile, 2 from
+  550px, 3 from 750px, 4 from 990px. Tiles butt up against each other with no
+  column gap, as in the design.
+
+  Keeps the hooks Horizon's <results-list> / paginated-list.js need for
+  filtering and infinite scroll: ref="grid", data-last-page, ref="cards[]" on
+  each item, and the viewMore* sentinels.
+
+  @param {object} products - The products to render (inside a paginate block)
+  @param {object} paginate - The paginate object
+  @param {object} section - The section, for its id
+  @param {boolean} [enable_infinite_scroll] - Infinite scroll vs. pagination controls (default: true)
+{%- enddoc -%}
+
+{%- comment -%}
+  collection-wrapper--full-width trips Horizon's rule in collection-wrapper-styles
+  that stretches the surrounding .collection-wrapper edge to edge.
+{%- endcomment -%}
+<div
+  id="ResultsList"
+  class="listing-grid-wrapper collection-wrapper--full-width"
+>
+  {%- if products.size == 0 -%}
+    <div class="listing-grid__empty">
+      <h2 class="type-h2">{{ 'content.no_products_found' | t }}</h2>
+      <p>
+        {{ 'content.use_fewer_filters_html' | t: link: collection.url, class: 'main-collection-grid__empty-link' }}
+      </p>
+    </div>
+  {%- else -%}
+    {%- if enable_infinite_scroll != false -%}
+      <span ref="viewMorePrevious"></span>
+    {%- endif -%}
+
+    <ul
+      class="listing-grid"
+      ref="grid"
+      role="list"
+      data-last-page="{{ paginate.pages }}"
+    >
+      {%- for product in products -%}
+        <li
+          id="{{ section.id }}-{{ product.id }}"
+          class="listing-grid__item"
+          data-page="{{ paginate.current_page }}"
+          data-product-id="{{ product.id }}"
+          ref="cards[]"
+        >
+          {%- liquid
+            assign lazy = true
+            if paginate.current_page == 1 and forloop.index <= 4
+              assign lazy = false
+            endif
+            render 'product-listing-card', product: product, lazy: lazy
+          -%}
+        </li>
+      {%- endfor -%}
+    </ul>
+
+    {%- if enable_infinite_scroll != false -%}
+      <span ref="viewMoreNext"></span>
+    {%- else -%}
+      {% render 'pagination-controls', paginate: paginate %}
+    {%- endif -%}
+  {%- endif -%}
+</div>
+
+{% stylesheet %}
+  .listing-grid-wrapper {
+    grid-column: 1 / -1;
+  }
+
+  .listing-grid {
+    --listing-grid-columns: 1;
+
+    display: grid;
+    grid-template-columns: repeat(var(--listing-grid-columns), minmax(0, 1fr));
+    gap: 40px 0;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+
+    @media screen and (min-width: 550px) {
+      --listing-grid-columns: 2;
+    }
+
+    @media screen and (min-width: 750px) {
+      --listing-grid-columns: 3;
+    }
+
+    @media screen and (min-width: 990px) {
+      --listing-grid-columns: 4;
+
+      /* 600px row pitch in the design, less the card's own height. */
+      row-gap: 76px;
+    }
+  }
+
+  .listing-grid__empty {
+    padding: 80px var(--grid-margin);
+    text-align: center;
+  }
+{% endstylesheet %}
