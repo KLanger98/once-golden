@@ -1,0 +1,107 @@
+{% doc %}
+  Site-wide scrolling announcement strip above the header.
+
+  Driven by the "Marquee bar" theme settings: toggle, messages (one per line)
+  and colors. Reuses <marquee-component> from assets/marquee.js, which repeats
+  the items to fill the viewport and sets --marquee-speed; the layout and
+  animation styles live here so the bar doesn't depend on the marquee section.
+{% enddoc %}
+
+{%- liquid
+  assign messages = settings.marquee_bar_messages | newline_to_br | split: '<br />'
+  assign has_message = false
+  for message in messages
+    if message != blank
+      assign has_message = true
+      break
+    endif
+  endfor
+-%}
+
+{%- if settings.marquee_bar_enabled and has_message -%}
+  <script
+    src="{{ 'marquee.js' | asset_url }}"
+    type="module"
+    fetchpriority="low"
+  ></script>
+
+  <marquee-component
+    class="marquee-bar"
+    style="
+      --marquee-bar-background: {{ settings.marquee_bar_background_color }};
+      --marquee-bar-text: {{ settings.marquee_bar_text_color }};
+    "
+    data-speed-factor="25"
+    role="region"
+    aria-label="Announcements"
+  >
+    <div
+      class="marquee-bar__track"
+      ref="wrapper"
+    >
+      <div
+        class="marquee-bar__group"
+        ref="content"
+      >
+        <div
+          class="marquee-bar__group"
+          ref="marqueeItems[]"
+        >
+          {%- for message in messages -%}
+            {%- assign message = message | strip -%}
+            {%- if message != blank -%}
+              <p class="marquee-bar__message">{{ message }}</p>
+            {%- endif -%}
+          {%- endfor -%}
+        </div>
+      </div>
+    </div>
+  </marquee-component>
+{%- endif -%}
+
+{% stylesheet %}
+  .marquee-bar {
+    --marquee-bar-gap: 20px;
+
+    display: block;
+    flex-shrink: 0; /* .page-wrapper is a flex column; overflow: hidden would let it collapse */
+    width: 100%;
+    overflow: hidden;
+    padding-block: 10px;
+    background-color: var(--marquee-bar-background);
+    color: var(--marquee-bar-text);
+  }
+
+  .marquee-bar__track,
+  .marquee-bar__group {
+    display: flex;
+    align-items: center;
+    gap: var(--marquee-bar-gap);
+    min-width: max-content;
+  }
+
+  .marquee-bar__track {
+    width: fit-content;
+  }
+
+  .marquee-bar__message {
+    margin: 0;
+    font-family: var(--font-stack-areal);
+    font-size: 0.875rem;
+    font-weight: 700;
+    line-height: 1.1;
+    white-space: nowrap;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .marquee-bar .marquee-bar__track {
+      animation: marquee-bar-motion var(--marquee-speed, 25s) linear infinite;
+    }
+  }
+
+  @keyframes marquee-bar-motion {
+    to {
+      transform: translate3d(calc(-50% - (var(--marquee-bar-gap) / 2)), 0, 0);
+    }
+  }
+{% endstylesheet %}

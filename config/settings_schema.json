@@ -1129,6 +1129,40 @@
     ]
   },
   {
+    "name": "Marquee bar",
+    "settings": [
+      {
+        "type": "paragraph",
+        "content": "Scrolling announcement strip shown above the header on every page."
+      },
+      {
+        "type": "checkbox",
+        "id": "marquee_bar_enabled",
+        "label": "Show marquee bar",
+        "default": true
+      },
+      {
+        "type": "textarea",
+        "id": "marquee_bar_messages",
+        "label": "Messages",
+        "info": "One message per line. Blank lines are ignored.",
+        "default": "FREE SHIPPING ON ORDERS OVER 100AUD"
+      },
+      {
+        "type": "color",
+        "id": "marquee_bar_background_color",
+        "label": "Background color",
+        "default": "#FF89A9"
+      },
+      {
+        "type": "color",
+        "id": "marquee_bar_text_color",
+        "label": "Text color",
+        "default": "#2B2B2B"
+      }
+    ]
+  },
+  {
     "name": "t:names.animations",
     "settings": [
       {
