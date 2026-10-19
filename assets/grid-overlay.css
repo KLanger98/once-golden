@@ -1,0 +1,41 @@
+/*
+  Dev-only grid overlay. Toggled with Cmd/Ctrl + G — see assets/grid-helper.js.
+
+  The overlay is drawn with the same .l-container / .l-grid classes as real
+  content (see assets/grid.css), so it can't drift out of sync with the grid
+  it's measuring.
+*/
+
+.grid-overlay {
+  position: fixed;
+  inset: 0;
+  /* Above --layer-temporary (20), the theme's highest layer. */
+  z-index: 9999;
+  pointer-events: none;
+}
+
+.grid-overlay.is-hidden {
+  display: none;
+}
+
+.grid-overlay__inner {
+  height: 100%;
+}
+
+.grid-overlay__col {
+  background: rgb(255 0 0 / 12%);
+}
+
+/* Mobile shows 4 columns, matching --grid-columns. */
+@media screen and (max-width: 749px) {
+  .grid-overlay__col--5,
+  .grid-overlay__col--6,
+  .grid-overlay__col--7,
+  .grid-overlay__col--8,
+  .grid-overlay__col--9,
+  .grid-overlay__col--10,
+  .grid-overlay__col--11,
+  .grid-overlay__col--12 {
+    display: none;
+  }
+}

@@ -1,0 +1,198 @@
+/*
+  Central grid definition for the theme.
+
+  4 columns on mobile, 12 on desktop. Every value the grid depends on lives in
+  the :root block below — change it here and the layout classes, every section
+  using them, and the dev grid overlay all follow.
+
+  Span tiers, mobile first — each holds until the next one takes over:
+    .l-col-span-*     from 0     (4-column grid)
+    .l-col-span-sm-*  from 550px  (4-column grid)
+    .l-col-span-md-*  from 750px  (12-column grid)
+    .l-col-span-lg-*  from 990px  (12-column grid)
+
+  Usage:
+    <div class="l-container l-grid">
+      <div class="l-col-span-4 l-col-span-md-6">...</div>
+    </div>
+*/
+
+:root {
+  --grid-columns: 4;
+  --grid-gap: 16px;
+
+  /* Edge horizontal padding — the only thing keeping content off the viewport
+     edge. This theme's grid is full-bleed: no max width. */
+  --grid-margin: 16px;
+}
+
+@media screen and (min-width: 750px) {
+  :root {
+    --grid-columns: 12;
+    --grid-gap: 24px;
+    --grid-margin: 24px;
+  }
+}
+
+/* Full width with the edge padding applied. Safe to use on its own for
+   non-grid sections that just need to line up with the page. */
+.l-container {
+  /* Explicit rather than relying on the global reset — this is a layout
+     primitive and must behave the same wherever it's dropped in. */
+  box-sizing: border-box;
+  width: 100%;
+  padding-inline: var(--grid-margin);
+}
+
+/* minmax(0, 1fr) rather than 1fr so long words and images can't blow out a column.
+
+   The column gap is the grid's own and is not meant to be overridden — that is
+   what keeps every section on the same vertical rules. The row gap is a section
+   concern (a product grid breathes differently to a footer), so it is exposed as
+   --grid-row-gap and falls back to the column gap when a section says nothing. */
+.l-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--grid-columns), minmax(0, 1fr));
+  gap: var(--grid-row-gap, var(--grid-gap)) var(--grid-gap);
+}
+
+/* Column spans — mobile (4-column) */
+.l-col-span-1 {
+  grid-column: span 1;
+}
+
+.l-col-span-2 {
+  grid-column: span 2;
+}
+
+.l-col-span-3 {
+  grid-column: span 3;
+}
+
+.l-col-span-4 {
+  grid-column: span 4;
+}
+
+/* Column spans — large mobile / small tablet (still the 4-column grid).
+   The step that takes a one-up phone layout to two-up before the grid itself
+   widens at 750px. */
+@media screen and (min-width: 550px) {
+  .l-col-span-sm-1 {
+    grid-column: span 1;
+  }
+
+  .l-col-span-sm-2 {
+    grid-column: span 2;
+  }
+
+  .l-col-span-sm-3 {
+    grid-column: span 3;
+  }
+
+  .l-col-span-sm-4 {
+    grid-column: span 4;
+  }
+}
+
+/* Column spans — desktop (12-column) */
+@media screen and (min-width: 750px) {
+  .l-col-span-md-1 {
+    grid-column: span 1;
+  }
+
+  .l-col-span-md-2 {
+    grid-column: span 2;
+  }
+
+  .l-col-span-md-3 {
+    grid-column: span 3;
+  }
+
+  .l-col-span-md-4 {
+    grid-column: span 4;
+  }
+
+  .l-col-span-md-5 {
+    grid-column: span 5;
+  }
+
+  .l-col-span-md-6 {
+    grid-column: span 6;
+  }
+
+  .l-col-span-md-7 {
+    grid-column: span 7;
+  }
+
+  .l-col-span-md-8 {
+    grid-column: span 8;
+  }
+
+  .l-col-span-md-9 {
+    grid-column: span 9;
+  }
+
+  .l-col-span-md-10 {
+    grid-column: span 10;
+  }
+
+  .l-col-span-md-11 {
+    grid-column: span 11;
+  }
+
+  .l-col-span-md-12 {
+    grid-column: span 12;
+  }
+}
+
+/* Column spans — wide desktop (still the 12-column grid). The tier for layouts
+   that need to loosen again on a large screen. */
+@media screen and (min-width: 990px) {
+  .l-col-span-lg-1 {
+    grid-column: span 1;
+  }
+
+  .l-col-span-lg-2 {
+    grid-column: span 2;
+  }
+
+  .l-col-span-lg-3 {
+    grid-column: span 3;
+  }
+
+  .l-col-span-lg-4 {
+    grid-column: span 4;
+  }
+
+  .l-col-span-lg-5 {
+    grid-column: span 5;
+  }
+
+  .l-col-span-lg-6 {
+    grid-column: span 6;
+  }
+
+  .l-col-span-lg-7 {
+    grid-column: span 7;
+  }
+
+  .l-col-span-lg-8 {
+    grid-column: span 8;
+  }
+
+  .l-col-span-lg-9 {
+    grid-column: span 9;
+  }
+
+  .l-col-span-lg-10 {
+    grid-column: span 10;
+  }
+
+  .l-col-span-lg-11 {
+    grid-column: span 11;
+  }
+
+  .l-col-span-lg-12 {
+    grid-column: span 12;
+  }
+}

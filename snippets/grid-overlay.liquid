@@ -1,0 +1,18 @@
+{% doc %}
+  Dev-only column overlay for checking layout alignment.
+
+  Rendered on every page but hidden by default; assets/grid-helper.js only binds
+  the Cmd/Ctrl + G toggle when the theme role is not "main" (i.e. `shopify theme
+  dev`, an unpublished theme preview, or the theme editor).
+
+  The columns are laid out by .l-container / .l-grid from assets/grid.css, so
+  the overlay always reflects the real grid.
+{% enddoc %}
+
+<div class="grid-overlay is-hidden" data-grid-template aria-hidden="true">
+  <div class="l-container l-grid grid-overlay__inner">
+    {%- for i in (1..12) -%}
+      <div class="grid-overlay__col grid-overlay__col--{{ i }}"></div>
+    {%- endfor -%}
+  </div>
+</div>

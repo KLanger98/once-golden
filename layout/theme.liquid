@@ -172,5 +172,9 @@
     {% if settings.quick_add or settings.mobile_quick_add %}
       {% render 'quick-add-modal' %}
     {% endif %}
+
+    {% comment %} Dev-only grid overlay — Cmd/Ctrl + G. Inert on the live theme. {% endcomment %}
+    {% render 'grid-overlay' %}
+    <script src="{{ 'grid-helper.js' | asset_url }}" type="module"></script>
   </body>
 </html>
