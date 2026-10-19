@@ -1,0 +1,307 @@
+{% comment %}
+  Once Golden site header.
+
+  A single row of large text links — main menu on the left, Search / Account /
+  Cart on the right — that sticks to the top of the viewport with no background.
+  The row uses `mix-blend-mode: difference` with white text, so it reads black
+  over the white page and inverts over imagery and colour as content scrolls
+  underneath.
+
+  Replaces Horizon's sections/header.liquid in header-group.json. Search and the
+  cart drawer reuse Horizon's existing dialogs (#search-modal, #cart-drawer), and
+  <cart-icon> keeps the cart count in sync after add-to-cart.
+{% endcomment %}
+
+<script
+  type="module"
+  src="{{ 'cart-icon.js' | asset_url }}"
+  fetchpriority="low"
+></script>
+
+{%- capture cart_label -%}
+  <cart-icon class="site-header__cart header-actions__cart-icon">
+    {{- 'content.cart_title' | t -}}
+    {%- comment -%}
+      header-actions__cart-icon is the target product-form.js flies added items to.
+      cart-icon.js requires the three refs below to update the count.
+    {%- endcomment -%}
+    <sup
+      ref="cartBubble"
+      class="site-header__count{% if cart == empty %} visually-hidden{% endif %}"
+    >
+      <span
+        ref="cartBubbleText"
+        id="cart-bubble-text"
+      >
+        <span
+          ref="cartBubbleCount"
+          class="{% if cart == empty %}hidden{% endif %}"
+          aria-hidden="true"
+        >
+          {{- cart.item_count -}}
+        </span>
+      </span>
+    </sup>
+  </cart-icon>
+{%- endcapture -%}
+
+<header
+  id="site-header"
+  class="site-header"
+>
+  <details class="site-header__menu-toggle">
+    <summary class="site-header__link">
+      <span class="site-header__menu-open">{{ 'accessibility.menu' | t }}</span>
+      <span class="site-header__menu-close">{{ 'actions.close' | t }}</span>
+    </summary>
+  </details>
+
+  <nav
+    class="site-header__nav"
+    aria-label="{{ 'accessibility.menu' | t }}"
+  >
+    {%- for link in section.settings.menu.links -%}
+      <a
+        href="{{ link.url }}"
+        class="site-header__link"
+        {% if link.active or link.child_active %}
+          aria-current="page"
+        {% endif %}
+      >
+        {{- link.title -}}
+      </a>
+    {%- endfor -%}
+  </nav>
+
+  <div class="site-header__actions">
+    <button
+      type="button"
+      class="site-header__link button-unstyled"
+      on:click="#search-modal/showDialog"
+      aria-haspopup="dialog"
+    >
+      {{- 'content.search' | t -}}
+    </button>
+
+    {%- if shop.customer_accounts_enabled -%}
+      <a
+        href="{{ routes.account_url }}"
+        class="site-header__link site-header__account"
+      >
+        {{- 'content.account_title' | t -}}
+      </a>
+    {%- endif -%}
+
+    {%- if settings.cart_type == 'drawer' and template.name != 'cart' -%}
+      <button
+        type="button"
+        class="site-header__link button-unstyled"
+        on:click="#cart-drawer/toggle"
+        aria-haspopup="dialog"
+        aria-expanded="false"
+        aria-controls="cart-drawer"
+        aria-describedby="cart-bubble-text"
+      >
+        {{ cart_label }}
+      </button>
+    {%- else -%}
+      <a
+        href="{{ routes.cart_url }}"
+        class="site-header__link"
+        aria-describedby="cart-bubble-text"
+      >
+        {{ cart_label }}
+      </a>
+    {%- endif -%}
+  </div>
+</header>
+
+<script>
+  /**
+   * Keeps --header-height / --header-group-height current for the Horizon rules
+   * that size content against the header (e.g. a hero filling the viewport).
+   * Horizon's own measuring targets #header-component, which this header replaces.
+   */
+  (function () {
+    const header = document.getElementById('site-header');
+    if (!header) return;
+
+    const update = () => {
+      const height = `${header.offsetHeight}px`;
+      document.body.style.setProperty('--header-height', height);
+      document.body.style.setProperty('--header-group-height', height);
+    };
+
+    update();
+    new ResizeObserver(update).observe(header);
+
+    // Close the mobile menu when a link inside it is followed.
+    header.querySelector('.site-header__nav')?.addEventListener('click', (event) => {
+      if (event.target instanceof Element && event.target.closest('a')) {
+        header.querySelector('.site-header__menu-toggle')?.removeAttribute('open');
+      }
+    });
+  })();
+</script>
+
+{% stylesheet %}
+  /* The section wrapper is the sticky box: the header needs .page-wrapper (the
+     scroll container) as its sticky parent, not the header-group div. */
+  #header-group:has(.site-header) {
+    display: contents;
+  }
+
+  .shopify-section:has(> .site-header) {
+    position: sticky;
+    top: 0;
+    z-index: var(--layer-menu-drawer);
+
+    /* White text differenced against the page: black on white, white on black,
+       and a true negative over images and colour. Applied to the sticky box
+       because it is the stacking context — blending on a child would only mix
+       with the (transparent) header itself. */
+    mix-blend-mode: difference;
+  }
+
+  /* The open mobile menu is a solid panel, so stop inverting it. */
+  .shopify-section:has(> .site-header .site-header__menu-toggle[open]) {
+    mix-blend-mode: normal;
+  }
+
+  .site-header {
+    /* 40px at the design's 32px type; in em so it shrinks with the type. */
+    --site-header-gap: 1.25em;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--site-header-gap);
+    padding: 20px var(--grid-margin);
+    color: var(--color-white);
+    font-family: var(--font-stack-areal);
+    font-size: 1.25rem;
+    font-weight: 700;
+    line-height: 1;
+
+    @media screen and (min-width: 750px) {
+      padding-inline: 20px;
+    }
+
+    /* 32px at the 1440px design width, scaling down so the full row still
+       fits at 990px. */
+    @media screen and (min-width: 990px) {
+      font-size: min(2rem, 2.25vw);
+    }
+  }
+
+  .site-header__nav,
+  .site-header__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--site-header-gap);
+  }
+
+  .site-header__actions {
+    @media screen and (max-width: 989px) {
+      --site-header-gap: 16px;
+    }
+  }
+
+  .site-header__link {
+    color: inherit;
+    font: inherit;
+    line-height: inherit;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+
+  .site-header__link:hover,
+  .site-header__link:focus-visible,
+  .site-header__link[aria-current='page'] {
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 0.12em;
+  }
+
+  .site-header__count {
+    margin-inline-start: 0.08em;
+    font-size: 0.645em; /* 20.64px at 32px, matching the filter counts in the design */
+    vertical-align: top;
+    line-height: 1;
+  }
+
+  /* --- Mobile menu --- */
+
+  .site-header__menu-toggle > summary {
+    list-style: none;
+
+    &::-webkit-details-marker {
+      display: none;
+    }
+  }
+
+  .site-header__menu-close,
+  .site-header__menu-toggle[open] .site-header__menu-open {
+    display: none;
+  }
+
+  .site-header__menu-toggle[open] .site-header__menu-close {
+    display: inline;
+  }
+
+  @media screen and (min-width: 990px) {
+    .site-header__menu-toggle {
+      display: none;
+    }
+  }
+
+  @media screen and (max-width: 989px) {
+    .site-header:has(.site-header__menu-toggle[open]) {
+      color: var(--color-ink);
+    }
+
+    .site-header__menu-toggle {
+      position: relative;
+      z-index: 1;
+    }
+
+    .site-header__actions {
+      position: relative;
+      z-index: 1;
+    }
+
+    .site-header__nav {
+      display: none;
+    }
+
+    .site-header:has(.site-header__menu-toggle[open]) .site-header__nav {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 12px;
+      /* Clears the header row, plus the marquee bar when the page isn't scrolled. */
+      padding: calc(var(--header-height, 60px) + 48px) var(--grid-margin) var(--grid-margin);
+      background-color: var(--color-white);
+      font-size: var(--type-size-h1-mobile);
+      overflow-y: auto;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Site header",
+  "class": "site-header-section",
+  "settings": [
+    {
+      "type": "link_list",
+      "id": "menu",
+      "label": "Menu",
+      "default": "main-menu"
+    }
+  ]
+}
+{% endschema %}
