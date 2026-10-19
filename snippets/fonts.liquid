@@ -1,0 +1,25 @@
+{% doc %}
+  @font-face declarations for the brand font, ABC Areal (assets/abc-areal-*.woff2).
+
+  Declared here rather than in a .css file because the font URLs need
+  asset_url to resolve to the CDN. Only the faces a page actually uses are
+  downloaded; Regular is preloaded since body copy needs it on every page.
+{% enddoc %}
+
+{{ 'abc-areal-regular.woff2' | asset_url | preload_tag: as: 'font', type: 'font/woff2', crossorigin: 'anonymous' }}
+
+<style>
+  {%- liquid
+    assign faces = 'regular:400:normal,regular-italic:400:italic,medium:500:normal,medium-italic:500:italic,bold:700:normal,bold-italic:700:italic' | split: ','
+  -%}
+  {%- for face in faces -%}
+    {%- assign parts = face | split: ':' -%}
+    @font-face {
+      font-family: 'ABC Areal';
+      src: url('{{ 'abc-areal-' | append: parts[0] | append: '.woff2' | asset_url }}') format('woff2');
+      font-weight: {{ parts[1] }};
+      font-style: {{ parts[2] }};
+      font-display: swap;
+    }
+  {%- endfor -%}
+</style>

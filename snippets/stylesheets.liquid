@@ -1,5 +1,9 @@
 {{ 'overflow-list.css' | asset_url | preload_tag: as: 'style' }}
 {{ 'base.css' | asset_url | stylesheet_tag: preload: true }}
+{% comment %} Brand font, ABC Areal (see snippets/fonts.liquid) {% endcomment %}
+{% render 'fonts' %}
+{% comment %} Type styleguide classes and brand palette (see assets/type-styleguide.css) {% endcomment %}
+{{ 'type-styleguide.css' | asset_url | stylesheet_tag }}
 {% comment %} Central grid system + dev-only grid overlay (see assets/grid.css) {% endcomment %}
 {{ 'grid.css' | asset_url | stylesheet_tag }}
 {{ 'grid-overlay.css' | asset_url | stylesheet_tag }}
