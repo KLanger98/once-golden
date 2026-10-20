@@ -1163,6 +1163,17 @@
     ]
   },
   {
+    "name": "Footer",
+    "settings": [
+      {
+        "type": "image_picker",
+        "id": "footer_wordmark",
+        "label": "Wordmark image",
+        "info": "The large logo across the footer. SVG or transparent PNG. Falls back to the built-in Once Golden wordmark."
+      }
+    ]
+  },
+  {
     "name": "Product listing",
     "settings": [
       {

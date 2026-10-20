@@ -1,0 +1,190 @@
+{% comment %}
+  Once Golden site footer.
+
+  A white-to-pink gradient panel with the large wordmark across the middle and
+  two rows of links along the bottom: the left menu (footer-left by default),
+  and the right menu (footer-right) followed by the copyright.
+
+  The wordmark comes from Theme settings → Footer → Wordmark image, falling
+  back to assets/footer-wordmark.svg. Replaces Horizon's footer sections in
+  footer-group.json.
+{% endcomment %}
+
+{%- liquid
+  assign left_menu = section.settings.menu_left
+  assign right_menu = section.settings.menu_right
+-%}
+
+<div class="site-footer">
+  <div class="site-footer__wordmark">
+    {%- if settings.footer_wordmark != blank -%}
+      {{
+        settings.footer_wordmark
+        | image_url: width: 2800
+        | image_tag:
+          class: 'site-footer__wordmark-image',
+          loading: 'lazy',
+          alt: shop.name,
+          sizes: '95vw',
+          widths: '800, 1400, 2000, 2800'
+      }}
+    {%- else -%}
+      <img
+        src="{{ 'footer-wordmark.svg' | asset_url }}"
+        class="site-footer__wordmark-image"
+        width="1366"
+        height="403"
+        loading="lazy"
+        alt="{{ shop.name | escape }}"
+      >
+    {%- endif -%}
+  </div>
+
+  <div class="site-footer__bar">
+    {%- if left_menu.links.size > 0 -%}
+      <nav
+        class="site-footer__links"
+        aria-label="{{ left_menu.title | escape }}"
+      >
+        {%- for link in left_menu.links -%}
+          <a
+            href="{{ link.url }}"
+            class="site-footer__link"
+          >
+            {{- link.title -}}
+          </a>
+        {%- endfor -%}
+      </nav>
+    {%- endif -%}
+
+    <div class="site-footer__links site-footer__links--right">
+      {%- if right_menu.links.size > 0 -%}
+        <nav
+          class="site-footer__links"
+          aria-label="{{ right_menu.title | escape }}"
+        >
+          {%- for link in right_menu.links -%}
+            <a
+              href="{{ link.url }}"
+              class="site-footer__link"
+            >
+              {{- link.title -}}
+            </a>
+          {%- endfor -%}
+        </nav>
+      {%- endif -%}
+
+      <p class="site-footer__copyright">&copy;{{ shop.name }}</p>
+    </div>
+  </div>
+</div>
+
+{% stylesheet %}
+  /* Every measurement below is from the 1440px-wide design, expressed in vw so
+     the panel scales with the viewport rather than reflowing. */
+  .site-footer {
+    display: flex;
+    flex-direction: column;
+    min-height: 56.25vw; /* 810px */
+    padding-block-start: 16.875vw; /* wordmark sits 243px down */
+    background: linear-gradient(
+      to bottom,
+      var(--color-white) 70.673%,
+      #ffccda 85.096%,
+      var(--color-pink) 95.679%
+    );
+    color: var(--color-ink);
+    font-family: var(--font-stack-areal);
+    font-size: 0.875rem;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  .site-footer__wordmark {
+    padding-inline: 2.57vw; /* 37px */
+  }
+
+  .site-footer__wordmark-image {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .site-footer__bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px 20px;
+    margin-block-start: auto;
+    padding: 9vw 20px 18px; /* ~130px clear of the wordmark at 1440 */
+  }
+
+  .site-footer__links {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 20px;
+  }
+
+  .site-footer__link {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .site-footer__link:hover,
+  .site-footer__link:focus-visible {
+    text-decoration: underline;
+  }
+
+  /* Stays in the right corner even while the left menu is empty. */
+  .site-footer__links--right {
+    margin-inline-start: auto;
+  }
+
+  .site-footer__copyright {
+    margin: 0;
+  }
+
+  @media screen and (max-width: 749px) {
+    .site-footer {
+      /* The vw sizing leaves too little room for wrapped links on a phone. */
+      min-height: 0;
+      padding-block-start: 64px;
+    }
+
+    .site-footer__bar {
+      flex-direction: column;
+      align-items: flex-start;
+      padding: 64px 16px 16px;
+    }
+
+    .site-footer__links--right {
+      margin-inline-start: 0;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Site footer",
+  "class": "site-footer-section",
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "The wordmark is set in Theme settings → Footer."
+    },
+    {
+      "type": "link_list",
+      "id": "menu_left",
+      "label": "Left menu"
+    },
+    {
+      "type": "link_list",
+      "id": "menu_right",
+      "label": "Right menu",
+      "info": "The copyright is added after these links automatically."
+    }
+  ]
+}
+{% endschema %}
