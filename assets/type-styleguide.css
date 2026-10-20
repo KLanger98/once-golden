@@ -25,6 +25,10 @@
   /* Alright Mono isn't self-hosted yet — the fallbacks render until it is. */
   --font-stack-mono: 'Alright Mono', ui-monospace, 'SF Mono', Menlo, monospace;
 
+  /* Display face for large headline moments (e.g. Combo CTA). ED Celandine
+     isn't self-hosted yet — ABC Areal stands in until it is. */
+  --font-stack-display: 'ED Celandine', var(--font-stack-areal);
+
   --font-stack-heading: var(--font-stack-areal);
   --font-stack-subheading: var(--font-stack-areal);
   --font-stack-body: var(--font-stack-areal);
@@ -33,6 +37,8 @@
      and up); the -mobile token is what the .type-* classes use below it.
      Consumers that want a fixed size can read the desktop token directly — only
      the .type-* classes step down. */
+  --type-size-display: 4.5rem;
+  --type-size-display-mobile: 3rem;
   --type-size-h1: 3.25rem;
   --type-size-h1-mobile: 2.75rem;
   --type-size-h2: 1.825rem;
