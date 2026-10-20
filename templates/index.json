@@ -108,7 +108,7 @@
       "type": "featured-collection-grid",
       "name": "Featured collection",
       "settings": {
-        "collection": "",
+        "collection": "our-wines",
         "products_to_show": 4
       }
     },
