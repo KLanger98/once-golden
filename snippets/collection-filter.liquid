@@ -1,0 +1,264 @@
+{%- doc -%}
+  Tabbed collection filter: "All", then one tab per storefront filter (Producers,
+  Category). "All" clears every filter. Opening a filter tab lists its values,
+  each with a product count, as links that add or remove that value — so several
+  can be selected at once. Shopify combines values within one filter with OR,
+  and different filters (Producers + Category) with AND.
+
+  The filters themselves must be enabled in the Search & Discovery app, from the
+  product metafields custom.producer and custom.category.
+
+  @param {object} results - The collection being filtered
+  @param {object} section - The section, for the filter tab settings
+
+  @example
+  {% render 'collection-filter', results: collection, section: section %}
+{%- enddoc -%}
+
+{%- liquid
+  assign tab_params = section.settings.producer_filter_param | append: '|' | append: section.settings.category_filter_param | split: '|'
+  assign tab_labels = section.settings.producer_filter_label | append: '|' | append: section.settings.category_filter_label | split: '|'
+
+  assign open_tab = ''
+  for param in tab_params
+    for filter in results.filters
+      if filter.param_name == param and filter.active_values.size > 0 and open_tab == ''
+        assign open_tab = param
+      endif
+    endfor
+  endfor
+
+  assign clear_url = results.url
+  if results.sort_by != blank and results.sort_by != results.default_sort_by
+    assign clear_url = clear_url | append: '?sort_by=' | append: results.sort_by
+  endif
+-%}
+
+<collection-filter
+  class="collection-filter"
+  data-open-tab="{{ open_tab }}"
+>
+  <div class="collection-filter__tabs">
+    <a
+      href="{{ clear_url }}"
+      class="collection-filter__tab"
+      data-filter-all
+      {% if open_tab == '' %}
+        aria-current="true"
+      {% endif %}
+    >
+      {{- section.settings.all_filter_label -}}
+      <sup>{{ results.all_products_count }}</sup>
+    </a>
+
+    {%- for param in tab_params -%}
+      {%- assign label = tab_labels[forloop.index0] -%}
+      {%- for filter in results.filters -%}
+        {%- if filter.param_name == param and filter.type == 'list' -%}
+          <button
+            type="button"
+            class="collection-filter__tab button-unstyled"
+            data-filter-tab="{{ param }}"
+            aria-controls="CollectionFilter-{{ forloop.parentloop.index }}"
+            aria-expanded="{% if open_tab == param %}true{% else %}false{% endif %}"
+          >
+            {{- label -}}
+            <sup>{{ filter.values.size }}</sup>
+          </button>
+        {%- endif -%}
+      {%- endfor -%}
+    {%- endfor -%}
+  </div>
+
+  {%- for param in tab_params -%}
+    {%- for filter in results.filters -%}
+      {%- if filter.param_name == param and filter.type == 'list' -%}
+        <ul
+          id="CollectionFilter-{{ forloop.parentloop.index }}"
+          class="collection-filter__options"
+          role="list"
+          data-filter-panel="{{ param }}"
+          {% unless open_tab == param %}
+            hidden
+          {% endunless %}
+        >
+          {%- for value in filter.values -%}
+            <li>
+              {%- if value.active -%}
+                <a
+                  href="{{ value.url_to_remove }}"
+                  class="collection-filter__option"
+                  aria-current="true"
+                  data-filter-option
+                >
+                  {{- value.label -}}
+                  <sup>{{ value.count }}</sup>
+                </a>
+              {%- elsif value.count > 0 -%}
+                <a
+                  href="{{ value.url_to_add }}"
+                  class="collection-filter__option"
+                  data-filter-option
+                >
+                  {{- value.label -}}
+                  <sup>{{ value.count }}</sup>
+                </a>
+              {%- else -%}
+                <span
+                  class="collection-filter__option"
+                  aria-disabled="true"
+                >
+                  {{- value.label -}}
+                  <sup>0</sup>
+                </span>
+              {%- endif -%}
+            </li>
+          {%- endfor -%}
+        </ul>
+      {%- endif -%}
+    {%- endfor -%}
+  {%- endfor -%}
+</collection-filter>
+
+<script>
+  /**
+   * Toggles the filter tabs. Which tab starts open comes from the server (the
+   * first tab with an active value); when none is active, a tab the shopper was
+   * just using is restored so removing the last value doesn't close it.
+   */
+  if (!customElements.get('collection-filter')) {
+    const STORAGE_KEY = 'collection-filter-tab';
+
+    customElements.define(
+      'collection-filter',
+      class CollectionFilter extends HTMLElement {
+        connectedCallback() {
+          let open = this.dataset.openTab;
+          try {
+            if (!open) open = sessionStorage.getItem(STORAGE_KEY) || '';
+            sessionStorage.removeItem(STORAGE_KEY);
+          } catch (_) {}
+          if (open) this.show(open);
+
+          this.addEventListener('click', this.#onClick);
+        }
+
+        disconnectedCallback() {
+          this.removeEventListener('click', this.#onClick);
+        }
+
+        #onClick = (event) => {
+          const target = event.target instanceof Element ? event.target : null;
+          const tab = target?.closest('[data-filter-tab]');
+          const option = target?.closest('[data-filter-option]');
+
+          if (tab instanceof HTMLElement) {
+            const param = tab.dataset.filterTab ?? '';
+            this.show(tab.getAttribute('aria-expanded') === 'true' ? '' : param);
+          } else if (option) {
+            const panel = option.closest('[data-filter-panel]');
+            try {
+              sessionStorage.setItem(STORAGE_KEY, panel?.getAttribute('data-filter-panel') ?? '');
+            } catch (_) {}
+          }
+        };
+
+        /** @param {string} param - The filter to open, or '' to show "All" as current */
+        show(param) {
+          for (const tab of this.querySelectorAll('[data-filter-tab]')) {
+            tab.setAttribute('aria-expanded', String(tab.getAttribute('data-filter-tab') === param));
+          }
+          for (const panel of this.querySelectorAll('[data-filter-panel]')) {
+            panel.toggleAttribute('hidden', panel.getAttribute('data-filter-panel') !== param);
+          }
+          this.querySelector('[data-filter-all]')?.toggleAttribute('aria-current', !param);
+        }
+      }
+    );
+  }
+</script>
+
+{% stylesheet %}
+  .collection-filter {
+    display: block;
+    grid-column: 1 / -1;
+    padding: 0 20px 80px;
+    font-family: var(--font-stack-areal);
+    font-size: 1.25rem;
+    font-weight: 700;
+    line-height: 1;
+
+    @media screen and (min-width: 750px) {
+      font-size: 2rem;
+    }
+  }
+
+  .collection-filter sup {
+    margin-inline-start: 0.08em;
+    font-size: 0.645em; /* 20.64px at 32px */
+    line-height: 1;
+    vertical-align: top;
+  }
+
+  .collection-filter__tabs {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 20px;
+
+    @media screen and (min-width: 750px) {
+      gap: 8px 40px;
+    }
+  }
+
+  .collection-filter__tab,
+  .collection-filter__option {
+    color: var(--color-sand);
+    font: inherit;
+    line-height: inherit;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: color var(--animation-speed, 0.2s) var(--animation-easing, ease);
+  }
+
+  .collection-filter__tab:hover,
+  .collection-filter__tab:focus-visible,
+  .collection-filter__tab[aria-current='true'],
+  .collection-filter__tab[aria-expanded='true'],
+  .collection-filter__option:is(a):hover,
+  .collection-filter__option:is(a):focus-visible,
+  .collection-filter__option[aria-current='true'] {
+    color: var(--color-ink);
+  }
+
+  .collection-filter__option[aria-disabled='true'] {
+    cursor: default;
+    opacity: 0.5;
+  }
+
+  .collection-filter__options {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 6px 10px;
+    max-width: 1400px;
+    margin: 40px auto 0;
+    padding: 0;
+    list-style: none;
+    text-align: center;
+
+    @media screen and (min-width: 750px) {
+      gap: 10px 12px;
+
+      /* Options start 150px below the tabs in the design (118px + the tab
+         line), and end 140px above the grid (this + the 80px padding). */
+      margin-block: 118px 60px;
+    }
+  }
+
+  .collection-filter__options[hidden] {
+    display: none;
+  }
+{% endstylesheet %}

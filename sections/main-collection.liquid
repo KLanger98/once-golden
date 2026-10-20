@@ -46,12 +46,7 @@
     <div
       class="collection-wrapper grid gap-style{% if section.settings.product_grid_width == 'full-width' %} collection-wrapper--grid-full-width{% endif %}"
     >
-      {% content_for 'block',
-        type: 'filters',
-        id: 'filters',
-        results: collection,
-        results_size: collection.products_count
-      %}
+      {% render 'collection-filter', results: collection, section: section %}
 
       {% assign products_per_page = 24 %}
 
@@ -78,6 +73,44 @@
     "templates": ["collection"]
   },
   "settings": [
+    {
+      "type": "header",
+      "content": "Filter"
+    },
+    {
+      "type": "paragraph",
+      "content": "Each tab shows one storefront filter from the Search & Discovery app, matched by its URL parameter."
+    },
+    {
+      "type": "text",
+      "id": "all_filter_label",
+      "label": "\"All\" tab label",
+      "default": "All"
+    },
+    {
+      "type": "text",
+      "id": "producer_filter_label",
+      "label": "First tab label",
+      "default": "Producers"
+    },
+    {
+      "type": "text",
+      "id": "producer_filter_param",
+      "label": "First tab filter parameter",
+      "default": "filter.p.m.custom.producer"
+    },
+    {
+      "type": "text",
+      "id": "category_filter_label",
+      "label": "Second tab label",
+      "default": "Category"
+    },
+    {
+      "type": "text",
+      "id": "category_filter_param",
+      "label": "Second tab filter parameter",
+      "default": "filter.p.m.custom.category"
+    },
     {
       "type": "select",
       "id": "layout_type",
