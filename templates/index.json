@@ -103,9 +103,62 @@
         "padding-block-start": 0,
         "padding-block-end": 48
       }
+    },
+    "featured_collection_grid_8JVWBc": {
+      "type": "featured-collection-grid",
+      "name": "Featured collection",
+      "settings": {
+        "collection": "",
+        "products_to_show": 4
+      }
+    },
+    "combo_cta_9ngrCN": {
+      "type": "combo-cta",
+      "blocks": {
+        "tile_yak939": {
+          "type": "tile",
+          "settings": {
+            "heading": "Lorem Ipsum",
+            "link": "",
+            "overlay_opacity": 0,
+            "background_color": "#D9D9D9",
+            "text_color": "#FFFFFF"
+          }
+        },
+        "tile_4D9Ecc": {
+          "type": "tile",
+          "settings": {
+            "heading": "Lorem Ipsum",
+            "link": "",
+            "overlay_opacity": 0,
+            "background_color": "#D9D9D9",
+            "text_color": "#FFFFFF"
+          }
+        }
+      },
+      "block_order": [
+        "tile_yak939",
+        "tile_4D9Ecc"
+      ],
+      "name": "Combo CTA",
+      "settings": {}
+    },
+    "banner_cta_f8wXR7": {
+      "type": "banner-cta",
+      "name": "Banner CTA",
+      "settings": {
+        "image": "shopify://shop_images/footer_graphic.jpg",
+        "button_label": "DRINKS CLUB",
+        "button_link": "/",
+        "background_color": "#FF89A9",
+        "text_color": "#000000"
+      }
     }
   },
   "order": [
-    "hero_rhMed7"
+    "hero_rhMed7",
+    "featured_collection_grid_8JVWBc",
+    "combo_cta_9ngrCN",
+    "banner_cta_f8wXR7"
   ]
 }
