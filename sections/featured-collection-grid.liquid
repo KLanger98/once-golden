@@ -1,0 +1,83 @@
+{% comment %}
+  Featured collection: a full-bleed row of products from one collection, using
+  the same card (snippets/product-listing-card.liquid) and grid as the
+  collection page. The .listing-grid styles live in
+  snippets/product-listing-grid.liquid.
+
+  Lives under "Custom modules" in the theme editor's Add section picker.
+{% endcomment %}
+
+{%- assign featured = section.settings.collection -%}
+
+<div class="featured-collection-grid">
+  <ul
+    class="listing-grid"
+    role="list"
+  >
+    {%- if featured != blank and featured.products_count > 0 -%}
+      {%- for product in featured.products limit: section.settings.products_to_show -%}
+        <li class="listing-grid__item">
+          {% render 'product-listing-card', product: product %}
+        </li>
+      {%- endfor -%}
+    {%- else -%}
+      {%- comment -%} Editor placeholders until a collection is picked. {%- endcomment -%}
+      {%- for i in (1..section.settings.products_to_show) -%}
+        <li class="listing-grid__item">
+          <div class="listing-card">
+            <div class="listing-card__media">
+              {{ 'product-1' | placeholder_svg_tag: 'listing-card__image listing-card__image--placeholder' }}
+            </div>
+            <div class="listing-card__details">
+              <p class="listing-card__brand">Brand</p>
+              <div class="listing-card__meta">
+                <p class="listing-card__title">{{ 'content.product_card_placeholder' | t }}</p>
+                <p class="listing-card__price">{{ 2900 | money_without_trailing_zeros }}</p>
+              </div>
+            </div>
+          </div>
+        </li>
+      {%- endfor -%}
+    {%- endif -%}
+  </ul>
+</div>
+
+{% stylesheet %}
+  /* Two up between 750px and 990px rather than the collection page's three,
+     so a row of four splits evenly instead of leaving one card behind. */
+  @media screen and (min-width: 750px) and (max-width: 989px) {
+    .featured-collection-grid .listing-grid {
+      --listing-grid-columns: 2;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Featured collection",
+  "tag": "section",
+  "class": "featured-collection-grid-section",
+  "settings": [
+    {
+      "type": "collection",
+      "id": "collection",
+      "label": "Collection"
+    },
+    {
+      "type": "range",
+      "id": "products_to_show",
+      "label": "Products to show",
+      "min": 1,
+      "max": 12,
+      "step": 1,
+      "default": 4
+    }
+  ],
+  "presets": [
+    {
+      "name": "Featured collection",
+      "category": "Custom modules"
+    }
+  ]
+}
+{% endschema %}
