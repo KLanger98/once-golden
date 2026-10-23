@@ -2,8 +2,9 @@
   Once Golden type styleguide
 
   Scale (desktop): H1 52px / H2 29px / H3 24px / Body 16px (large body 20px)
-  Families: ABC Areal (Regular 400, Medium 500, Bold 700, with italics) —
-            loaded in snippets/fonts.liquid
+  Families: ABC Areal (Regular 400, Medium 500, Bold 700, with italics),
+            Alright Mono (Regular 400), ED Celandine (Regular 400) —
+            all loaded in snippets/fonts.liquid
   Palette: pink #FF89A9 (brand primary), ink #030302, stone #D3CEC5, sand #E4E2DD,
            mist #F5F5F5, white #FFFFFF
 */
@@ -22,11 +23,9 @@
   /* Families. ABC Areal is self-hosted (snippets/fonts.liquid); the fallbacks
      cover the moment before it loads. */
   --font-stack-areal: 'ABC Areal', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  /* Alright Mono isn't self-hosted yet — the fallbacks render until it is. */
   --font-stack-mono: 'Alright Mono', ui-monospace, 'SF Mono', Menlo, monospace;
 
-  /* Display face for large headline moments (e.g. Combo CTA). ED Celandine
-     isn't self-hosted yet — ABC Areal stands in until it is. */
+  /* Display face for large headline moments (e.g. Combo CTA). */
   --font-stack-display: 'ED Celandine', var(--font-stack-areal);
 
   --font-stack-heading: var(--font-stack-areal);

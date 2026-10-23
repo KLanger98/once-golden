@@ -1,5 +1,6 @@
 {% doc %}
-  @font-face declarations for the brand font, ABC Areal (assets/abc-areal-*.woff2).
+  @font-face declarations for the brand fonts: ABC Areal (assets/abc-areal-*.woff2),
+  Alright Mono for small labels, and ED Celandine for display headlines.
 
   Declared here rather than in a .css file because the font URLs need
   asset_url to resolve to the CDN. Only the faces a page actually uses are
@@ -22,4 +23,18 @@
       font-display: swap;
     }
   {%- endfor -%}
+  @font-face {
+    font-family: 'Alright Mono';
+    src: url('{{ 'alright-mono-regular.woff2' | asset_url }}') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: 'ED Celandine';
+    src: url('{{ 'ed-celandine-regular.woff2' | asset_url }}') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }
 </style>
