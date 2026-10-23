@@ -1,0 +1,56 @@
+{% comment %}
+  One label / value row in the product page's details list
+  (sections/main-product.liquid). Empty rows don't render.
+{% endcomment %}
+
+{%- liquid
+  assign value = block.settings.value
+  if value == blank and block.settings.label == 'Category'
+    for category in closest.product.metafields.custom.category.value
+      assign category_name = category.category.value | default: category.system.handle
+      if forloop.first
+        assign value = category_name
+      else
+        assign value = value | append: ', ' | append: category_name
+      endif
+    endfor
+    if value == blank
+      assign value = closest.product.type
+    endif
+  endif
+-%}
+
+{%- if value != blank -%}
+  <div
+    class="product-page__detail"
+    {{ block.shopify_attributes }}
+  >
+    <dt>{{ block.settings.label }}</dt>
+    <dd>{{ value }}</dd>
+  </div>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Detail row",
+  "settings": [
+    {
+      "type": "text",
+      "id": "label",
+      "label": "Label",
+      "default": "Label"
+    },
+    {
+      "type": "text",
+      "id": "value",
+      "label": "Value",
+      "info": "Connect to a product metafield. A row labelled \"Category\" falls back to the product's categories."
+    }
+  ],
+  "presets": [
+    {
+      "name": "Detail row"
+    }
+  ]
+}
+{% endschema %}

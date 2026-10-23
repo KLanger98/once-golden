@@ -1,0 +1,361 @@
+{% comment %}
+  Once Golden product page: product info on the left half, the product shot on
+  a sand tile filling the right half. Below 750px the shot moves above the info.
+
+  The pairing line, closing line and detail rows are per-product content, so
+  connect them to product metafields in the theme editor (the dynamic source
+  icon next to each field). Rows and lines left empty don't render.
+
+  Detail rows are blocks/_product-detail.liquid.
+{% endcomment %}
+
+{%- liquid
+  assign variant = product.selected_or_first_available_variant
+  assign product_form_id = 'ProductForm-' | append: section.id
+
+  assign can_add_to_cart = false
+  assign add_to_cart_text = 'products.product.unavailable' | t
+  if variant.available
+    assign can_add_to_cart = true
+    assign add_to_cart_text = 'products.product.add_to_cart' | t
+  elsif variant
+    assign add_to_cart_text = 'products.product.sold_out' | t
+  endif
+-%}
+
+{% render 'add-to-cart-button-styles' %}
+{% render 'fly-to-cart-styles' %}
+
+<div
+  class="product-page"
+  style="--product-page-padding-top: {{ section.settings.padding-block-start }}px; --product-page-padding-bottom: {{ section.settings.padding-block-end }}px;"
+>
+  <div class="product-page__info">
+    {%- if product.vendor != blank -%}
+      <p class="product-page__brand">{{ product.vendor }}</p>
+    {%- endif -%}
+
+    <h1 class="product-page__title">
+      <span>{{ product.title }}</span>
+      <span class="product-page__price">
+        {%- if variant.compare_at_price > variant.price -%}
+          <s class="product-page__compare-price">
+            <span class="visually-hidden">{{ 'content.price_regular' | t }}</span>
+            {{- variant.compare_at_price | money_without_trailing_zeros -}}
+          </s>
+          <span class="visually-hidden">{{ 'content.price_sale' | t }}</span>
+        {%- endif -%}
+        {{ variant.price | money_without_trailing_zeros }}
+      </span>
+    </h1>
+
+    {%- if section.settings.pairing != blank -%}
+      <p class="product-page__statement">{{ section.settings.pairing }}</p>
+    {%- endif -%}
+
+    {%- unless product.has_only_default_variant -%}
+      <div class="product-page__variants">
+        {% content_for 'block', type: 'variant-picker', id: 'variant-picker' %}
+      </div>
+    {%- endunless -%}
+
+    <product-form-component
+      class="product-page__form"
+      data-section-id="{{ section.id }}"
+      data-product-id="{{ product.id }}"
+      data-product-url="{{ product.url }}"
+      on:submit="/handleSubmit"
+    >
+      <div
+        class="visually-hidden"
+        aria-live="assertive"
+        role="status"
+        aria-atomic="true"
+        ref="liveRegion"
+      ></div>
+      {%- form 'product', product, id: product_form_id, novalidate: 'novalidate', data-type: 'add-to-cart-form' -%}
+        <input
+          type="hidden"
+          name="id"
+          ref="variantId"
+          value="{{ variant.id }}"
+        >
+        <input
+          type="hidden"
+          name="quantity"
+          value="{{ variant.quantity_rule.min | default: 1 }}"
+        >
+        {% render 'add-to-cart-button',
+          add_to_cart_text: add_to_cart_text,
+          class: 'product-page__button',
+          can_add_to_cart: can_add_to_cart,
+          show_icon: false,
+          product: product
+        %}
+      {%- endform -%}
+    </product-form-component>
+
+    {%- if product.description != blank -%}
+      <div class="product-page__description">{{ product.description }}</div>
+    {%- endif -%}
+
+    {%- if section.blocks.size > 0 -%}
+      <dl class="product-page__details">
+        {% content_for 'blocks' %}
+      </dl>
+    {%- endif -%}
+
+    {%- if section.settings.closing != blank -%}
+      <p class="product-page__statement product-page__statement--closing">{{ section.settings.closing }}</p>
+    {%- endif -%}
+  </div>
+
+  <div class="product-page__media">
+    {%- assign image = variant.featured_image | default: product.featured_image -%}
+    {%- if image != blank -%}
+      {{
+        image
+        | image_url: width: 1800
+        | image_tag:
+          class: 'product-page__image',
+          loading: 'eager',
+          fetchpriority: 'high',
+          alt: image.alt | default: product.title,
+          sizes: '(min-width: 750px) 50vw, 100vw',
+          widths: '600, 900, 1200, 1500, 1800'
+      }}
+    {%- else -%}
+      {{ 'product-1' | placeholder_svg_tag: 'product-page__image product-page__image--placeholder' }}
+    {%- endif -%}
+  </div>
+</div>
+
+{% stylesheet %}
+  .product-page {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 40px;
+    padding-block: 20px var(--product-page-padding-bottom);
+    color: var(--color-ink);
+    font-family: var(--font-stack-areal);
+    font-weight: 700;
+  }
+
+  @media screen and (min-width: 750px) {
+    .product-page {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0;
+      padding-block-start: var(--product-page-padding-top);
+    }
+  }
+
+  .product-page__info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    order: 2;
+    padding-inline: 20px;
+  }
+
+  @media screen and (min-width: 750px) {
+    .product-page__info {
+      order: 0;
+      max-width: 620px;
+    }
+  }
+
+  .product-page__info :where(p, h1, dl, dd) {
+    margin-block: 0;
+    margin-inline: 0;
+  }
+
+  .product-page__brand {
+    font-family: var(--font-stack-mono);
+    font-size: 0.875rem;
+    font-weight: 400;
+    line-height: 1.2;
+  }
+
+  .product-page__title,
+  .product-page__statement {
+    width: 100%;
+    font-family: inherit;
+    font-size: var(--type-size-h3);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: 0;
+
+    @media screen and (min-width: 750px) {
+      font-size: 2rem;
+    }
+  }
+
+  .product-page__title {
+    display: flex;
+    flex-direction: column;
+    margin-top: 20px;
+    text-transform: uppercase;
+  }
+
+  .product-page__compare-price {
+    margin-inline-end: 0.3em;
+    opacity: 0.5;
+  }
+
+  .product-page__statement {
+    margin-top: 40px;
+  }
+
+  .product-page__statement--closing {
+    margin-top: 60px;
+
+    @media screen and (min-width: 750px) {
+      margin-top: 100px;
+    }
+  }
+
+  .product-page__variants {
+    width: 100%;
+    margin-top: 30px;
+  }
+
+  .product-page__form {
+    width: 100%;
+    margin-top: 30px;
+  }
+
+  .product-page__form add-to-cart-component {
+    display: block;
+  }
+
+  .product-page__button.button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 0;
+    padding: 20px 10px;
+    border: 0;
+    border-radius: 0;
+    background-color: var(--color-brand-primary);
+    color: var(--color-ink);
+    font-family: var(--font-stack-areal);
+    font-size: 0.875rem;
+    font-weight: 700;
+    line-height: 1.2;
+    text-transform: uppercase;
+    box-shadow: none;
+    transition: background-color var(--animation-speed, 0.2s) var(--animation-easing, ease);
+  }
+
+  .product-page__button.button:not(:disabled):hover,
+  .product-page__button.button:focus-visible {
+    background-color: var(--color-ink);
+    color: var(--color-brand-primary);
+  }
+
+  .product-page__button.button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .product-page__description,
+  .product-page__details {
+    width: 100%;
+    font-size: 0.875rem;
+    line-height: 1.2;
+  }
+
+  .product-page__description {
+    margin-top: 40px;
+  }
+
+  .product-page__description > * {
+    margin: 0;
+  }
+
+  .product-page__details {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-top: 25px;
+  }
+
+  .product-page__detail {
+    display: grid;
+    grid-template-columns: 100px minmax(0, 240px);
+    column-gap: 20px;
+
+    @media screen and (min-width: 750px) {
+      grid-template-columns: 200px minmax(0, 240px);
+    }
+  }
+
+  .product-page__media {
+    position: relative;
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+    background-color: var(--color-sand);
+  }
+
+  @media screen and (min-width: 750px) {
+    .product-page__media {
+      align-self: start;
+    }
+  }
+
+  /* Same treatment as the listing card: the whole shot shows, scaled to fit. */
+  .product-page__image {
+    position: absolute;
+    inset: 8px;
+    width: calc(100% - 16px);
+    height: calc(100% - 16px);
+    object-fit: contain;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Product page",
+  "tag": "section",
+  "class": "product-page-section",
+  "enabled_on": {
+    "templates": ["product"]
+  },
+  "settings": [
+    {
+      "type": "inline_richtext",
+      "id": "pairing",
+      "label": "Pairing line",
+      "info": "Large line under the price. Connect it to a product metafield so each product has its own."
+    },
+    {
+      "type": "inline_richtext",
+      "id": "closing",
+      "label": "Closing line",
+      "info": "Large line under the details. Connect it to a product metafield so each product has its own."
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "t:settings.top_padding",
+      "min": 0,
+      "max": 200,
+      "step": 2,
+      "unit": "px",
+      "default": 76
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "t:settings.bottom_padding",
+      "min": 0,
+      "max": 200,
+      "step": 2,
+      "unit": "px",
+      "default": 150
+    }
+  ],
+  "blocks": [{ "type": "_product-detail" }]
+}
+{% endschema %}
