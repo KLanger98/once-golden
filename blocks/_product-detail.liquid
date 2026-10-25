@@ -1,22 +1,39 @@
 {% comment %}
   One label / value row in the product page's details list
-  (sections/main-product.liquid). Empty rows don't render.
+  (sections/main-product.liquid). The value comes from the product metafield
+  picked in "Source"; anything typed in "Value" overrides it. Empty rows don't
+  render.
 {% endcomment %}
 
 {%- liquid
+  assign detail_product = closest.product
   assign value = block.settings.value
-  if value == blank and block.settings.label == 'Category'
-    for category in closest.product.metafields.custom.category.value
-      assign category_name = category.category.value | default: category.system.handle
-      if forloop.first
-        assign value = category_name
-      else
-        assign value = value | append: ', ' | append: category_name
-      endif
-    endfor
-    if value == blank
-      assign value = closest.product.type
-    endif
+
+  if value == blank
+    case block.settings.source
+      when 'category'
+        for category in detail_product.metafields.custom.category.value
+          assign category_name = category.category.value | default: category.system.handle
+          if forloop.first
+            assign value = category_name
+          else
+            assign value = value | append: ', ' | append: category_name
+          endif
+        endfor
+        if value == blank
+          assign value = detail_product.type
+        endif
+      when 'from'
+        assign value = detail_product.metafields.custom.from.value.location.value
+      when 'notes'
+        assign value = detail_product.metafields.custom.notes.value
+      when 'alcohol'
+        assign value = detail_product.metafields.custom.alcohol.value
+      when 'size'
+        assign value = detail_product.metafields.custom.size.value
+      when 'serve'
+        assign value = detail_product.metafields.custom.serve.value
+    endcase
   endif
 -%}
 
@@ -41,10 +58,26 @@
       "default": "Label"
     },
     {
+      "type": "select",
+      "id": "source",
+      "label": "Source",
+      "options": [
+        { "value": "none", "label": "None" },
+        { "value": "category", "label": "Category" },
+        { "value": "from", "label": "From" },
+        { "value": "notes", "label": "Notes" },
+        { "value": "alcohol", "label": "Alcohol" },
+        { "value": "size", "label": "Size" },
+        { "value": "serve", "label": "Serve" }
+      ],
+      "default": "none",
+      "info": "Product metafield the row reads. Category falls back to the product type."
+    },
+    {
       "type": "text",
       "id": "value",
       "label": "Value",
-      "info": "Connect to a product metafield. A row labelled \"Category\" falls back to the product's categories."
+      "info": "Overrides the source when filled in."
     }
   ],
   "presets": [

@@ -2,9 +2,11 @@
   Once Golden product page: product info on the left half, the product shot on
   a sand tile filling the right half. Below 750px the shot moves above the info.
 
-  The pairing line, closing line and detail rows are per-product content, so
-  connect them to product metafields in the theme editor (the dynamic source
-  icon next to each field). Rows and lines left empty don't render.
+  The brand line is the custom.producer metafield (vendor as a fallback) and
+  the line under the price is the product's custom.sub_title metafield. Detail
+  rows read their own product metafields (see the block). The closing line has
+  no metafield yet, so connect it in the theme editor. Anything empty doesn't
+  render.
 
   Detail rows are blocks/_product-detail.liquid.
 {% endcomment %}
@@ -31,8 +33,9 @@
   style="--product-page-padding-top: {{ section.settings.padding-block-start }}px; --product-page-padding-bottom: {{ section.settings.padding-block-end }}px;"
 >
   <div class="product-page__info">
-    {%- if product.vendor != blank -%}
-      <p class="product-page__brand">{{ product.vendor }}</p>
+    {%- assign brand = product.metafields.custom.producer.value.producer.value | default: product.vendor -%}
+    {%- if brand != blank -%}
+      <p class="product-page__brand">{{ brand }}</p>
     {%- endif -%}
 
     <h1 class="product-page__title">
@@ -49,8 +52,8 @@
       </span>
     </h1>
 
-    {%- if section.settings.pairing != blank -%}
-      <p class="product-page__statement">{{ section.settings.pairing }}</p>
+    {%- if product.metafields.custom.sub_title != blank -%}
+      <p class="product-page__statement">{{ product.metafields.custom.sub_title.value | newline_to_br }}</p>
     {%- endif -%}
 
     {%- unless product.has_only_default_variant -%}
@@ -323,12 +326,6 @@
     "templates": ["product"]
   },
   "settings": [
-    {
-      "type": "inline_richtext",
-      "id": "pairing",
-      "label": "Pairing line",
-      "info": "Large line under the price. Connect it to a product metafield so each product has its own."
-    },
     {
       "type": "inline_richtext",
       "id": "closing",

@@ -16,6 +16,7 @@
           "type": "_product-detail",
           "settings": {
             "label": "Category",
+            "source": "category",
             "value": ""
           },
           "blocks": {}
@@ -24,6 +25,7 @@
           "type": "_product-detail",
           "settings": {
             "label": "From",
+            "source": "from",
             "value": ""
           },
           "blocks": {}
@@ -32,6 +34,7 @@
           "type": "_product-detail",
           "settings": {
             "label": "Notes of",
+            "source": "notes",
             "value": ""
           },
           "blocks": {}
@@ -40,6 +43,7 @@
           "type": "_product-detail",
           "settings": {
             "label": "Alcohol",
+            "source": "alcohol",
             "value": ""
           },
           "blocks": {}
@@ -48,6 +52,7 @@
           "type": "_product-detail",
           "settings": {
             "label": "Size",
+            "source": "size",
             "value": ""
           },
           "blocks": {}
@@ -56,6 +61,7 @@
           "type": "_product-detail",
           "settings": {
             "label": "Serve",
+            "source": "serve",
             "value": ""
           },
           "blocks": {}
@@ -93,7 +99,6 @@
         "detail_serve"
       ],
       "settings": {
-        "pairing": "",
         "closing": "",
         "padding-block-start": 76,
         "padding-block-end": 150
