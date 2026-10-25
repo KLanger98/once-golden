@@ -6,7 +6,8 @@
  * or related systems. Please exercise caution as any changes
  * made to this file may be overwritten.
  * ------------------------------------------------------------
- */{
+ */
+{
   "sections": {
     "main": {
       "type": "main-product",
@@ -16,42 +17,71 @@
           "settings": {
             "label": "Category",
             "value": ""
-          }
+          },
+          "blocks": {}
         },
         "detail_from": {
           "type": "_product-detail",
           "settings": {
             "label": "From",
             "value": ""
-          }
+          },
+          "blocks": {}
         },
         "detail_notes_of": {
           "type": "_product-detail",
           "settings": {
             "label": "Notes of",
             "value": ""
-          }
+          },
+          "blocks": {}
         },
         "detail_alcohol": {
           "type": "_product-detail",
           "settings": {
             "label": "Alcohol",
             "value": ""
-          }
+          },
+          "blocks": {}
         },
         "detail_size": {
           "type": "_product-detail",
           "settings": {
             "label": "Size",
             "value": ""
-          }
+          },
+          "blocks": {}
         },
         "detail_serve": {
           "type": "_product-detail",
           "settings": {
             "label": "Serve",
             "value": ""
-          }
+          },
+          "blocks": {}
+        },
+        "variant-picker": {
+          "type": "variant-picker",
+          "static": true,
+          "settings": {
+            "variant_style": "buttons",
+            "show_swatches": true,
+            "option_label_text_color": "",
+            "variant_style_class": "default",
+            "custom_variant_background": "{{ settings.color_palette.background }}",
+            "custom_variant_text": "{{ settings.color_palette.foreground }}",
+            "custom_variant_border": "{{ settings.color_palette.foreground }}",
+            "selected_variant_style_class": "default",
+            "custom_selected_variant_background": "{{ settings.color_palette.foreground }}",
+            "custom_selected_variant_text": "{{ settings.color_palette.background }}",
+            "custom_selected_variant_border": "{{ settings.color_palette.foreground }}",
+            "alignment": "left",
+            "padding-block-start": 0,
+            "padding-block-end": 8,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {}
         }
       },
       "block_order": [
@@ -72,7 +102,7 @@
     "featured_collection": {
       "type": "featured-collection-grid",
       "settings": {
-        "collection": "",
+        "collection": "our-wines",
         "products_to_show": 4
       }
     },
@@ -81,7 +111,7 @@
       "settings": {
         "button_label": "DRINKS CLUB",
         "button_link": "",
-        "background_color": "#FF89A9",
+        "background_color": "#ff89a9",
         "text_color": "#000000"
       }
     }
