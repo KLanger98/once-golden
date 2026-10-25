@@ -109,6 +109,7 @@
     "drinks_club": {
       "type": "banner-cta",
       "settings": {
+        "image": "shopify://shop_images/footer_graphic.jpg",
         "button_label": "DRINKS CLUB",
         "button_link": "",
         "background_color": "#ff89a9",
