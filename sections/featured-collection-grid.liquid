@@ -9,7 +9,10 @@
 
 {%- assign featured = section.settings.collection -%}
 
-<div class="featured-collection-grid">
+<div
+  class="featured-collection-grid"
+  style="--featured-collection-padding-bottom: {{ section.settings.padding-block-end }}px;"
+>
   <ul
     class="listing-grid"
     role="list"
@@ -43,6 +46,10 @@
 </div>
 
 {% stylesheet %}
+  .featured-collection-grid {
+    padding-block-end: var(--featured-collection-padding-bottom);
+  }
+
   /* Two up between 750px and 990px rather than the collection page's three,
      so a row of four splits evenly instead of leaving one card behind. */
   @media screen and (min-width: 750px) and (max-width: 989px) {
@@ -71,6 +78,16 @@
       "max": 12,
       "step": 1,
       "default": 4
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "t:settings.bottom_padding",
+      "min": 0,
+      "max": 200,
+      "step": 2,
+      "unit": "px",
+      "default": 76
     }
   ],
   "presets": [
